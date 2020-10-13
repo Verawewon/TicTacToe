@@ -1,10 +1,8 @@
 from turtle import *
 
 class Player:
-    def __init__(self,name,XorO,color):
+    def __init__(self,name):
         self.name = name
-        self.XorO = XorO
-        self.color= color
 
 
 def main():
