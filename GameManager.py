@@ -2,62 +2,73 @@ from turtle import *
 import Bord
 import Player
 
-rectIsTaken = [10, 10, 10, 10, 10, 10, 10, 10, 10]
-def takeAInput(alt1, alt2, stringTitle, string, screen):
-    goodInput = False
-    while (goodInput != True):
-        choice=screen.textinput(stringTitle, string)
-        if( choice.lower() ==alt1):
-            goodInput=True
-        elif( choice.lower() ==alt2):
-            goodInput=True
-    return choice
+class GameManager:
+    def __init__(self, player,players,rect_is_taken,win_message,player_list):
+        self.player=player
+        self.players=players
+        self.rect_is_taken=rect_is_taken
+        self.win_message=win_message
+        self.player_list=player_list
 
-def emptyRect(rectNr):
-    if rectIsTaken[rectNr-1]==10:
-        rectIsTaken[rectNr - 1]=player%2
-        return True
-    else:
-        return False
+        text_turtle = Turtle()
+        text_turtle.hideturtle()
+        text_turtle.pencolor("black")
+        self.text_turtle=text_turtle
 
-def win():
-    if (
-            rectIsTaken[3] == rectIsTaken[4] == rectIsTaken[5] != 10 or
-            rectIsTaken[7] == rectIsTaken[4] == rectIsTaken[1] != 10 or
-            rectIsTaken[0] == rectIsTaken[4] == rectIsTaken[8] != 10 or
-            rectIsTaken[6] == rectIsTaken[4] == rectIsTaken[2] != 10):
-        if rectIsTaken[4]==0:
-            print('P1 win!4')
+    def emptyRect(self,rect_nr):
+        if self.rect_is_taken[rect_nr - 1]==10:
+            self.rect_is_taken[rect_nr - 1]= self.player % 2
+            return True
         else:
-            print('P2 win!4')
-        return True
+            return False
 
-    if (
-            rectIsTaken[6] == rectIsTaken[7] == rectIsTaken[8] != 10 or
-            rectIsTaken[6] == rectIsTaken[3] == rectIsTaken[0] != 10):
-        if rectIsTaken[6]==0:
-            print('P1 win!6')
-        else:
-            print('P2 win6')
-        return True
-    if (
-            rectIsTaken[8] == rectIsTaken[5] == rectIsTaken[2] != 10 or
-            rectIsTaken[0] == rectIsTaken[1] == rectIsTaken[2] != 10):
-        if rectIsTaken[2]==0:
-            print('P1 win!2')
-        else:
-            print('P2 win!2')
-        write('win')
-        return True
-    else:
-        return False
+    def win(self):
+        if (
+                self.rect_is_taken[3] == self.rect_is_taken[4] == self.rect_is_taken[5] != 10 or
+                self.rect_is_taken[7] == self.rect_is_taken[4] == self.rect_is_taken[1] != 10 or
+                self.rect_is_taken[0] == self.rect_is_taken[4] == self.rect_is_taken[8] != 10 or
+                self.rect_is_taken[6] == self.rect_is_taken[4] == self.rect_is_taken[2] != 10):
+            if self.rect_is_taken[4]==0:
+                self.win_message=self.player_list[0].name +' win!'
+            else:
+                self.win_message=self.player_list[1].name +' win!'
+            return True
 
-def drawMatch():
-    if (player>=8):
-        print('draw')
-        return True
-    else:
-        return False
+        if (
+                self.rect_is_taken[6] == self.rect_is_taken[7] == self.rect_is_taken[8] != 10 or
+                self.rect_is_taken[6] == self.rect_is_taken[3] == self.rect_is_taken[0] != 10):
+            if self.rect_is_taken[6]==0:
+                self.win_message=self.player_list[0].name +' win!'
+            else:
+                self.win_message=self.player_list[1].name +' win!'
+            return True
+        if (
+                self.rect_is_taken[8] == self.rect_is_taken[5] == self.rect_is_taken[2] != 10 or
+                self.rect_is_taken[0] == self.rect_is_taken[1] == self.rect_is_taken[2] != 10):
+            if self.rect_is_taken[2]==0:
+                self.win_message=self.player_list[0].name +' win!'
+            else:
+                self.win_message=self.player_list[1].name +' win!'
+            return True
+        else:
+            return False
+
+    def tap(self,x,y):
+        x= Bord.floor(x)
+        y= Bord.floor(y)
+        rectNr=Bord.whichRect(x,y)
+        draw=self.players[self.player%2]
+        if self.emptyRect(rectNr)==True:
+            draw(x,y)
+            #print(self.rect_is_taken)
+            if (self.win()==True):
+                Screen().clear()
+                self.text_turtle.write(self.win_message, font=("Arial", 30, "normal"))
+            elif(self.player>=8):
+                Screen().clear()
+                self.text_turtle.write(f"Draw!", font=("Arial", 30, "normal"))
+            update()
+            self.player+=1
 
 def XorO(xo):
     if xo=='x':
@@ -65,23 +76,15 @@ def XorO(xo):
     else:
         return [Bord.drawo, Bord.drawx]
 
-
-players = XorO('x')
-
-def tap(x,y):
-    global stopTap
-    global player
-    x= Bord.floor(x)
-    y= Bord.floor(y)
-    rectNr=Bord.whichRect(x,y)
-    draw=players[player%2]
-    if emptyRect(rectNr)==True:
-        draw(x,y)
-        print(rectIsTaken)
-        update()
-        win()
-        drawMatch()
-        player+=1
+def takeAInput(alt1, alt2, string_title, string, screen):
+    good_input = False
+    while (good_input != True):
+        choice=screen.textinput(string_title, string)
+        if( choice.lower() ==alt1):
+            good_input=True
+        elif( choice.lower() ==alt2):
+            good_input=True
+    return choice
 
 
 def main():
@@ -89,32 +92,34 @@ def main():
     input_turtle.hideturtle()
     screen = input_turtle.getscreen()
 
-    global P1Name
-    global P2Name
-    global player
-    global players
-    P1Name = screen.textinput("Enter Name", "Welcome to TicTacToe!\nWhat is your name? ")
+    p1_name = screen.textinput("Enter Name", "Welcome to TicTacToe!\nWhat is your name? ")
     P1XorO = takeAInput("x","o","X or O", "You want to be \n 'X' or 'O':",screen)
 
     if P1XorO=='o':
-
         players=XorO('o')
+        p1 = Player.Player(p1_name)
+    else:
+        players = XorO('x')
+        p1 = Player.Player(p1_name)
 
-    playAlt= takeAInput("1","2","Enter 1 or 2 ", "1 Play. 2 Play with Computer",screen)
+    rect_is_taken = [10, 10, 10, 10, 10, 10, 10, 10, 10]
 
-    if(playAlt=="1"):
-        global rectIsTaken
-        P2Name = screen.textinput("Enter P2's name", "Whats the second players name? ")
+    p2_name = screen.textinput("Enter p2's name", "Whats the second players name? ")
+    p2 = Player.Player(p2_name)
+    player_list=[p1,p2]
+
+    Screen().clear()
+    Bord.main()
+
+    my_game_menager = GameManager(0, players, rect_is_taken, '', player_list)
+    if(my_game_menager.win()==True):
         Screen().clear()
-        rectIsTaken = [10, 10, 10, 10, 10, 10, 10, 10, 10]
-        player = 0
-        Bord.main()
-        onscreenclick(tap)
-        done()
+        screen.textinput("Enter p2's name", "Whats the second players name? ")
+    onscreenclick(my_game_menager.tap)
 
-    elif(playAlt=="2"):
-        # P2=COMPUTER
-        pass
+
+    done()
+
 
 
 if __name__ == '__main__':

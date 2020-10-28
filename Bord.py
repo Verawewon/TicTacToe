@@ -1,5 +1,4 @@
 from turtle import *
-from Player import *
 
 side=250
 rectNr=0
